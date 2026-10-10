@@ -22,8 +22,138 @@
 @isTest
 private class OpportunityTriggerHandlerTest {
 
+    private static Account createAccount() {
+
+        Account acc = new Account (Name='Sales Pipeline Test Account');
+
+        insert acc;
+        return acc;
+    }
+
+    private static Opportunity createOpportunity (Id accountId, String stageName, Decimal amount) {
+
+        return new Opportunity(
+            Name = 'Test Opportunity',
+            AccountId = accountId,
+            CloseDate = Date.today().addDays(30),
+            Amount = amount,         
+            StageName = stageName
+        );
+
+    }
+
     @isTest
-    static void myUnitTest() {
-        // TO DO: implement unit test
+    static void testValidOpportunityInsert() {
+       
+        Account acc = createAccount();
+
+        Opportunity opp = createOpportunity(acc.Id, 'Qualification', 100000);
+
+        Test.startTest();
+        insert opp;
+        Test.stopTest();
+
+        Opportunity savedOpp = [SELECT Id, Amount, StageName FROM Opportunity WHERE Id = :opp.Id];
+
+        System.assertEquals(100000, savedOpp.Amount);
+        System.assertEquals('Qualification', savedOpp.StageName);
+    }
+
+    @isTest
+    static void testNegativeAmountRejected(){
+
+        Account acc = createAccount();
+
+        Opportunity opp = createOpportunity(acc.Id, 'Qualification', -100);
+
+        Test.startTest();
+        Database.SaveResult result = Database.insert(opp, false);
+        Test.stopTest();
+
+        System.assertEquals(false, result.isSuccess());
+
+        System.assert(result.getErrors()[0].getMessage().contains('Opportunity Amount cannot be negative.'));
+    }
+
+    @isTest
+    static void testCloseedWonWithZeroAmountRejected() {
+
+        Account acc = createAccount();
+
+        Opportunity opp = createOpportunity(acc.Id, 'Closed Won', 0);
+
+        Test.startTest();
+        Database.SaveResult result = Database.insert(opp, false);
+        Test.stopTest();
+
+        System.assertEquals(false, result.isSuccess());
+        System.assert(result.getErrors()[0].getMessage().contains('A Closed Won opportunity must have a positive Amount.'));
+    }
+
+    @isTest
+    static void testValidClosedWonOpportunity () {
+
+        Account acc = createAccount();
+
+        Opportunity opp = createOpportunity(acc.Id, 'Closed Won', 150000);
+
+        Test.startTest();
+        insert opp;
+        Test.stopTest();
+
+        System.assertNotEquals(null, opp.Id);
+    }
+
+    @IsTest
+    static void testNegativeAmountUpdateRejected() {
+
+        Account acc = createAccount();
+
+        Opportunity opp = createOpportunity(
+            acc.Id,
+            'Qualification',
+            100000
+        );
+
+        insert opp;
+
+        opp.Amount = -500;
+
+        Test.startTest();
+
+        Database.SaveResult result = Database.update(opp, false);
+
+        Test.stopTest();
+
+        System.assertEquals(false, result.isSuccess());
+
+        System.assert(result.getErrors()[0].getMessage().contains('Opportunity Amount cannot be negative.'));
+    }
+
+    @IsTest
+    static void testBulkOpportunityInsert() {
+
+        Account acc = createAccount();
+
+        List<Opportunity> opportunities = new List<Opportunity>();
+
+        for (Integer i = 0; i < 200; i++) {
+
+            opportunities.add(createOpportunity(acc.Id, 'Qualification',1000 + i));
+        }
+
+        Test.startTest();
+
+        insert opportunities;
+
+        Test.stopTest();
+
+        System.assertEquals(200,
+            [
+                SELECT COUNT()
+                FROM Opportunity
+                WHERE AccountId = :acc.Id
+            ]
+        );
     }
 }

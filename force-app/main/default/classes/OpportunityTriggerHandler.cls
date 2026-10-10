@@ -9,13 +9,13 @@ public with sharing class OpportunityTriggerHandler {
 
             // amount cannot be negative
             if (opp.Amount != null && opp.Amount < 0) {
-                opp.Amount.addError('Opportunity Amount cannot be negative.');
+                opp.addError('Opportunity Amount cannot be negative.');
             }
 
             // closed requires a +ve value
-            if (opp.stageName == 'Closed Won' && (opp.Amount == null || opp.Amount < 0)) {
+            if (opp.stageName == 'Closed Won' && (opp.Amount == null || opp.Amount <= 0)) {
 
-                opp.Amount.addError('A Closed Won opportunity must have a positive Amount.');
+                opp.addError('A Closed Won opportunity must have a positive Amount.');
             }
         }
     }
