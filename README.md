@@ -246,10 +246,6 @@ This project provides practical experience with:
 
 ## Author
 
-**Your Name**
+**Mohammed Hassan**
 
-Salesforce Developer
 
-GitHub: <YOUR_GITHUB_PROFILE_URL>
-
-LinkedIn: <YOUR_LINKEDIN_PROFILE_URL>
