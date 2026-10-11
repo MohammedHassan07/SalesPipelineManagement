@@ -1,0 +1,97 @@
+<template>
+    <lightning-card
+        title="Sales Pipeline Dashboard"
+        icon-name="standard:opportunity"
+    >
+        <div class="slds-p-around_medium">
+
+            <div class="dashboard-header">
+                <p class="slds-text-color_weak">
+                    Monitor your sales pipeline and performance.
+                </p>
+
+                <lightning-button
+                    label="Refresh"
+                    icon-name="utility:refresh"
+                    onclick={handleRefresh}
+                    disabled={isLoading}
+                ></lightning-button>
+            </div>
+
+            <template lwc:if={isLoading}>
+                <lightning-spinner
+                    alternative-text="Loading sales metrics"
+                    size="medium"
+                ></lightning-spinner>
+            </template>
+
+            <template lwc:if={error}>
+                <div
+                    class="slds-notify slds-notify_alert slds-alert_error"
+                    role="alert"
+                >
+                    <span>{errorMessage}</span>
+                </div>
+            </template>
+
+            <template lwc:if={hasData}>
+                <div class="metrics-grid">
+
+                    <article class="metric-card">
+                        <p class="metric-label">
+                            Open Pipeline Value
+                        </p>
+                        <p class="metric-value">
+                            <lightning-formatted-number
+                                value={metrics.openPipelineValue}
+                                format-style="currency"
+                                currency-code="INR"
+                                maximum-fraction-digits="2"
+                            ></lightning-formatted-number>
+                        </p>
+                    </article>
+
+                    <article class="metric-card">
+                        <p class="metric-label">
+                            Closed-Won Revenue
+                        </p>
+                        <p class="metric-value">
+                            <lightning-formatted-number
+                                value={metrics.closedWonRevenue}
+                                format-style="currency"
+                                currency-code="INR"
+                                maximum-fraction-digits="2"
+                            ></lightning-formatted-number>
+                        </p>
+                    </article>
+
+                    <article class="metric-card">
+                        <p class="metric-label">
+                            Open Opportunities
+                        </p>
+                        <p class="metric-value">
+                            <lightning-formatted-number
+                                value={metrics.openOpportunityCount}
+                                maximum-fraction-digits="0"
+                            ></lightning-formatted-number>
+                        </p>
+                    </article>
+
+                    <article class="metric-card">
+                        <p class="metric-label">
+                            Closed-Won Opportunities
+                        </p>
+                        <p class="metric-value">
+                            <lightning-formatted-number
+                                value={metrics.closedWonOpportunityCount}
+                                maximum-fraction-digits="0"
+                            ></lightning-formatted-number>
+                        </p>
+                    </article>
+
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+</template>
